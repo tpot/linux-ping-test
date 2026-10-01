@@ -12,7 +12,7 @@
                         10.15.1.1              10.15.1.2
 ```
 
-# Packet flow
+# Packet flow for ping `host2` from `host1`
 
 Don't forget that we see both ends of a transmission - the source sending
 the packet and the destination receiving it.
