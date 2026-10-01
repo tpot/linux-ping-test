@@ -1,0 +1,106 @@
+#
+# Left network is 10.10.1.0/24
+#   * host1   is 10.10.1.10
+#   * gateway is 10.10.1.1
+#
+# Transit network is 10.15.1.0/24 and connects left and right
+#
+#   * router1 is 10.10.1.1 (left) and 10.15.1.1 (transit)
+#   * router2 is 10.20.1.1 (right) and 10.15.1.2 (transit)
+#
+# Right network is 10.20.1.0/24
+#   * host2   is 10.20.1.10
+#   * gateway is 10.20.1.1
+
+services:
+  host1:
+    build: .
+    cap_add:
+      - NET_ADMIN
+    command:
+      - sh
+      - -c
+      - >-
+        ip route add default via 10.10.1.1 &&
+        ip addr && ip route &&
+        tcpdump -e -n -l net 10.10.1.0/24 or net 10.15.1.0/24 or net 10.20.1.0/24
+    networks:
+      left:
+        ipv4_address: 10.10.1.10
+
+  router1:
+    build: .
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      net.ipv4.ip_forward: "1"
+    command:
+      - sh
+      - -c
+      - >-
+        ip route add 10.20.1.0/24 via 10.15.1.2 &&
+        ip addr && ip route &&
+        tcpdump -e -n -l net 10.10.1.0/24 or net 10.15.1.0/24 or net 10.20.1.0/24
+    networks:
+      left:
+        ipv4_address: 10.10.1.1
+      transit:
+        ipv4_address: 10.15.1.1
+
+  router2:
+    build: .
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      net.ipv4.ip_forward: "1"
+    command:
+      - sh
+      - -c
+      - >-
+        ip route add 10.10.1.0/24 via 10.15.1.1 &&
+        tcpdump -e -n -l net 10.10.1.0/24 or net 10.15.1.0/24 or net 10.20.1.0/24
+    networks:
+      transit:
+        ipv4_address: 10.15.1.2
+      right:
+        ipv4_address: 10.20.1.1
+
+  host2:
+    build: .
+    cap_add:
+      - NET_ADMIN
+    command:
+      - sh
+      - -c
+      - >-
+        ip route add default via 10.20.1.1 &&
+        ip addr && ip route &&
+        tcpdump -e -n -l net 10.10.1.0/24 or net 10.15.1.0/24 or net 10.20.1.0/24
+    networks:
+      right:
+        ipv4_address: 10.20.1.10
+
+# Unfortunately we can't disable the Docker host binding to the gateway IP
+# which defaults to the .1 address. This means that containers (i.e. the
+# router containers) cannot be assigned the .1 address. Set a dummy gateway
+# value and make sure to delete the default route in each container.
+
+networks:
+  left:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.10.1.0/24
+          gateway: 10.10.1.254
+  transit:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.15.1.0/24
+          gateway: 10.15.1.254
+  right:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.20.1.0/24
+          gateway: 10.20.1.254
