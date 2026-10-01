@@ -22,7 +22,7 @@ router1-1  | 07:39:56.213184 66:47:bb:40:3f:1c > 22:2d:27:c5:d2:52, ethertype AR
 host1-1    | 07:39:56.213192 66:47:bb:40:3f:1c > 22:2d:27:c5:d2:52, ethertype ARP (0x0806), length 42: Reply 10.10.1.1 is-at 66:47:bb:40:3f:1c, length 28
 ```
 
-`host1` forwards ping to `host2` via `router1:
+`host1` forwards ping to `host2` via `router1`:
 ```
 host1-1    | 07:39:56.213198 22:2d:27:c5:d2:52 > 66:47:bb:40:3f:1c, ethertype IPv4 (0x0800), length 98: 10.10.1.10 > 10.20.1.10: ICMP echo request, id 7756, seq 1, length 64
 router1-1  | 07:39:56.213201 22:2d:27:c5:d2:52 > 66:47:bb:40:3f:1c, ethertype IPv4 (0x0800), length 98: 10.10.1.10 > 10.20.1.10: ICMP echo request, id 7756, seq 1, length 64
