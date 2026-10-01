@@ -11,7 +11,6 @@
 # Right network is 10.20.1.0/24
 #   * host2   is 10.20.1.10
 #   * gateway is 10.20.1.1
-
 services:
   host1:
     build: .
@@ -84,7 +83,6 @@ services:
 # which defaults to the .1 address. This means that containers (i.e. the
 # router containers) cannot be assigned the .1 address. Set a dummy gateway
 # value and make sure to delete the default route in each container.
-
 networks:
   left:
     internal: true
